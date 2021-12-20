@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    *{
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+    ul li{
+        list-style: none;
+    }
+    html,body{
+        position: relative;
+    }
+    .content{
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        padding-bottom: 80px;
+        background: #f1f1f1;
+    }
+    .content h2{
+        text-align: center;
+    }
+    .content ul{
+        padding: 0 20px 50px 20px;
+        overflow: auto;
+        height: -webkit-fill-available;
+    }
+    .content ul li {
+        margin: 10px;
+        border-radius: 8px;
+        width: fit-content;
+        height: 40px;
+        line-height: 40px;
+        padding: 0 20px;
+        background: #fff;
+        clear: both;
+    }
+    .content ul li:nth-child(even){
+        color: orange;
+        float: left;
+    }
+    .content ul li:nth-child(odd){
+        color: rebeccapurple;
+        float: right;
+    }
+    .content .footer{
+        width: 100%;
+        height: 80px;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        background: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+    }
+    .content .footer input{
+        width: 78%;
+        height: 45px;
+        outline: none;
+        border: 1px solid #f1f1f1;
+    }
+    .content .footer button{
+        outline: none;
+        width: 18%;
+        height: 45px;
+        background: tomato;
+        color: #fff;
+        text-align: center;
+        line-height: 45px;
+        border-radius: 3px;
+        border:0;
+        cursor: pointer;
+    }
+</style>
+<body>
+<div class="content">
+    <h2>聊天室</h2>
+    <ul>
+        <li>
+            test
+        </li>
+    </ul>
+    <div class="footer">
+        <input type="text" value="" placeholder="请输入聊天内容"/>
+        <button>发送</button>
+    </div>
+</div>
+
+<script>
+    if(window.WebSocket){
+        var ws = new WebSocket('ws://localhost:8888');
+        document.onkeydown = function (e) { // 回车提交表单
+        // 兼容FF和IE和Opera
+            var theEvent = window.event || e;
+            var code = theEvent.keyCode || theEvent.which || theEvent.charCode;
+            if (code == 13) {
+                    let val = document.querySelector('input').value;
+                    ws.send("来自客户端的消息:"+val);
+                    document.querySelector('input').value = '';
+            }
+        }
+        ws.onopen = function(e){
+            console.log("连接服务器成功");
+            // 向服务器发送消息
+            let btn = document.querySelector('button');
+            btn.onclick = function(){
+                let val = document.querySelector('input').value;
+                ws.send("来自客户端的消息:"+val);
+            }
+        }
+        ws.onclose = function(e){
+            console.log("服务器关闭");
+        }
+        ws.onerror = function(){
+            console.log("连接出错");
+        }
+        // 接收服务器的消息
+        ws.onmessage = function(e){
+            let message = "message:"+e.data+"";
+            console.log(message);
+            let ul = document.querySelector('ul');
+            let li = document.createElement('li');
+            ul.appendChild(li);
+            li.innerHTML = message.split(":")[1];
+        }
+    }
+
+</script>
+</body>
+</html>
